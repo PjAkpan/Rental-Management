@@ -5,6 +5,8 @@ import AdminSignup from './components/AdminSignup';
 import AdminDashboard from './components/AdminDashboard';
 import RoomManagement from './components/RoomManagement';
 import TenantManagement from './components/TenantManagement';
+import TermsAndConditions from './components/TermsAndConditions';
+import ResetPassword from './components/ResetPassword';
 
 const App = () => {
   return (
@@ -16,6 +18,8 @@ const App = () => {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/rooms" element={<RoomManagement />} />
         <Route path="/admin/tenants" element={<TenantManagement />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/reset-password" element={<ResetPassword />}/>
       </Routes>
     </Router>
   );
