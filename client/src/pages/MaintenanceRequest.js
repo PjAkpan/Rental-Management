@@ -1,8 +1,10 @@
+/* eslint-disable no-unused-vars */
 
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FiArrowLeft, FiHome } from "react-icons/fi";
 
 const MaintenanceRequest = () => {
   const [subject, setSubject] = useState("");
@@ -43,20 +45,22 @@ const MaintenanceRequest = () => {
   };
 
   // Function to view request status
-  const viewRequestStatus = async () => {
-    try {
-      const response = await axios.get("/api/maintenance-request-status");
-      setRequestStatus(response.data.status); // Status could be 'pending', 'in progress', 'completed', or 'declined'
-    } catch (error) {
-      setMessage("Failed to fetch request status.");
-    }
-  };
+  const viewRequestStatus = () => navigate('/request-status'); 
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex items-center justify-center">
-      <div className="max-w-lg w-full bg-white shadow-md rounded-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Maintenance Request</h1>
+    <div className="min-h-screen bg-gray-100 p-4 flex flex-col items-center">
+          {/* Navbar */}
+          <div className="w-full bg-white shadow-md flex items-center px-4 py-2">
+        <button onClick={() => navigate(-1)} className="mr-4 text-gray-600 hover:text-black">
+          <FiArrowLeft size={24} />
+        </button>
+        <h1 className="text-lg font-bold text-gray-800 flex-grow text-center">Maintenance Request</h1>
+        <button onClick={() => navigate('/dashboard')} className="text-gray-600 hover:text-black">
+          <FiHome size={24} />
+        </button>
+      </div>
 
+      <div className="max-w-lg w-full bg-white shadow-md rounded-lg p-6 mt-4">
         {/* Subject Input */}
         <label className="block text-gray-700 font-semibold mb-2">Subject</label>
         <input

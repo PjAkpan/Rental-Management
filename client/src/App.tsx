@@ -8,6 +8,8 @@ import MaintenanceRequest from './pages/MaintenanceRequest';
 import Notifications from './pages/Notifications';
 import ChangePassword from './pages/ChangePassword';
 import TermsAndConditions from './pages/TermsAndConditions';
+import RequestStatus from './pages/RequestStatus';
+import ContactPage from './pages/Contact ';
 
 function App() {
   return (
@@ -19,9 +21,11 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/maintenance" element={<MaintenanceRequest />} />
+        <Route path="/request-status" element={<RequestStatus />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </Router>
   );
