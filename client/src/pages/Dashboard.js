@@ -8,6 +8,8 @@ const Dashboard = () => {
   const [paymentReceipt, setPaymentReceipt] = useState(null);
   const [tenancyReceipt, setTenancyReceipt] = useState(null);
   const [message, setMessage] = useState("");
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
+
 
   // Handle payment receipt file selection
   const handlePaymentReceiptChange = (e) => {
@@ -147,6 +149,42 @@ const Dashboard = () => {
                 Request Maintenance
               </button>
             </div>
+
+                 {/* Payment Details */}
+                 <div className="bg-purple-50 p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-bold text-purple-600 mb-4">Payment Details</h3>
+              <button
+                onClick={() => setShowAccountDetails(true)}
+                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
+              >
+                View Account Details
+              </button>
+            </div>
+
+              {/* Payment Details Modal */}
+          {showAccountDetails && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Account Details</h2>
+                <div className="mb-4">
+                  <p className="text-gray-700 font-semibold">Bank Name: UBA Bank</p>
+                  <p className="text-gray-700">Account Number: 2001018695</p>
+                  <p className="text-gray-700">Account Holder: Akpan Johnson Akpan</p>
+                </div>
+                <div>
+                  <p className="text-gray-700 font-semibold">Bank Name: Union Bank</p>
+                  <p className="text-gray-700">Account Number: 0032022628</p>
+                  <p className="text-gray-700">Account Holder: Akpan Johnson Akpan</p>
+                </div>
+                <button
+                  onClick={() => setShowAccountDetails(false)}
+                  className="mt-6 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                >
+                  Back to Dashboard
+                </button>
+                </div>
+            </div>
+          )}
           </div>
 
           {/* Account Settings */}
