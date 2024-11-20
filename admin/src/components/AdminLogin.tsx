@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import  { useNavigate, Link }  from 'react-router-dom';
 
 const AdminLogin = () => {
   const [username, setUsername] = useState('');
@@ -18,7 +18,7 @@ const AdminLogin = () => {
       });
 
       if (response.status === 200) {
-        navigate('/admin/dashboard'); // Navigate to the admin dashboard
+        navigate('/admin/dashboard'); 
       }
     } catch (err) {
       setError('Invalid username or password. Please try again.');
@@ -83,6 +83,16 @@ const AdminLogin = () => {
             Reset it here
           </a>
           .
+        </div>
+
+           {/* Employee Onboarding Navigation */}
+           <div className="text-center mt-4">
+          <Link
+            to="/admin/onboard-employee"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Employee Onboarding
+          </Link>
         </div>
       </div>
     </div>
