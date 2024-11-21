@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -54,6 +52,16 @@ const Login = () => {
               className="mt-2 w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
+          </div>
+
+          {/* Forgot Password Link */}
+          <div className="text-right">
+            <span
+              className="text-blue-600 hover:text-blue-700 cursor-pointer font-semibold text-sm"
+              onClick={() => navigate('/reset-password')}
+            >
+              Forgot Password?
+            </span>
           </div>
 
           {/* Login Button */}

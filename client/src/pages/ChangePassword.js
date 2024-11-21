@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faHome } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 const ChangePassword = () => {
@@ -77,6 +79,20 @@ const ChangePassword = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg shadow-md max-w-md w-full">
+      <div className="flex justify-between items-center mb-6">
+          {/* Back and Home Icons */}
+          <FontAwesomeIcon
+            icon={faArrowLeft}
+            className="h-6 w-6 text-gray-600 cursor-pointer"
+            onClick={() => navigate(-1)}
+          />
+          <FontAwesomeIcon
+            icon={faHome}
+            className="h-6 w-6 text-gray-600 cursor-pointer"
+            onClick={() => navigate('/dashboard')}
+          />
+        </div>
+
         <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">Change Password</h2>
         {message && <p className="text-center text-red-500 mb-4">{message}</p>}
 

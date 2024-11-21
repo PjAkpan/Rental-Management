@@ -1,43 +1,83 @@
 /* eslint-disable no-unused-vars */
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaHome, FaArrowLeft } from 'react-icons/fa';  // Import icons from react-icons
 import axios from 'axios';
 
 const Profile = () => {
+  const navigate = useNavigate();  // Hook for programmatic navigation
   const [contactInfo, setContactInfo] = useState({
-    fullName: 'John Doe', // Added full name
+    fullName: 'John Doe',
     email: 'tenant@example.com',
     phoneNumber: '+1234567890',
   });
   const [editMode, setEditMode] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [newPhoneNumber, setNewPhoneNumber] = useState('');
   const [paymentHistory, setPaymentHistory] = useState([
     { date: '2023-10-02', amount: '₦25,000', status: 'Paid' },
     { date: '2023-09-02', amount: '₦25,000', status: 'Paid' },
   ]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setContactInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
+  const handlePhoneNumberChange = (e) => {
+    setNewPhoneNumber(e.target.value);
   };
 
   const handleEditToggle = () => {
     setEditMode(!editMode);
+    setNewPhoneNumber(contactInfo.phoneNumber);
+    setIsOtpSent(false); // Reset OTP state when toggling edit
   };
 
-  const handleSaveChanges = async () => {
+  const handleSendOtp = async () => {
     try {
-      await axios.put('http://localhost:5000/api/client/contact-info', contactInfo);
-      setEditMode(false);
-      alert('Contact information updated successfully!');
+      await axios.post('http://localhost:5000/api/send-otp', { email: contactInfo.email });
+      setIsOtpSent(true);
+      alert('OTP has been sent to your email!');
     } catch (error) {
-      console.error('Error updating contact info:', error);
-      alert('Failed to update contact information.');
+      console.error('Error sending OTP:', error);
+      alert('Failed to send OTP. Please try again.');
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/verify-otp', { 
+        email: contactInfo.email, 
+        otp, 
+        newPhoneNumber 
+      });
+      if (response.data.success) {
+        setContactInfo((prev) => ({ ...prev, phoneNumber: newPhoneNumber }));
+        setEditMode(false);
+        alert('Phone number updated successfully!');
+      } else {
+        alert('Invalid OTP. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      alert('Failed to verify OTP. Please try again.');
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
+        <div className="flex justify-between items-center mb-4">
+          <button
+            onClick={() => navigate(-1)} // Navigate back to the previous page
+            className="p-2 rounded-full hover:bg-gray-200"
+          >
+            <FaArrowLeft className="text-gray-700" size={20} />
+          </button>
+          <button
+            onClick={() => navigate('/dashboard')} // Navigate to the dashboard
+            className="p-2 rounded-full hover:bg-gray-200"
+          >
+            <FaHome className="text-gray-700" size={20} />
+          </button>
+        </div>
         <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">Profile</h2>
 
         {/* Contact Information Section */}
@@ -48,65 +88,72 @@ const Profile = () => {
               <label className="text-lg font-medium text-gray-600">Full Name</label>
               <input
                 type="text"
-                name="fullName" // Fixed name attribute to match state
                 value={contactInfo.fullName}
-                onChange={handleInputChange}
-                disabled={!editMode}
-                className={`mt-2 w-full p-3 border rounded-lg ${
-                  editMode ? 'bg-white border-gray-300' : 'bg-gray-100 border-gray-200'
-                }`}
+                disabled
+                className="mt-2 w-full p-3 border rounded-lg bg-gray-100 border-gray-200"
               />
             </div>
             <div>
               <label className="text-lg font-medium text-gray-600">Email</label>
               <input
                 type="email"
-                name="email"
                 value={contactInfo.email}
-                onChange={handleInputChange}
-                disabled={!editMode}
-                className={`mt-2 w-full p-3 border rounded-lg ${
-                  editMode ? 'bg-white border-gray-300' : 'bg-gray-100 border-gray-200'
-                }`}
+                disabled
+                className="mt-2 w-full p-3 border rounded-lg bg-gray-100 border-gray-200"
               />
             </div>
             <div>
               <label className="text-lg font-medium text-gray-600">Phone Number</label>
               <input
                 type="tel"
-                name="phoneNumber"
-                value={contactInfo.phoneNumber}
-                onChange={handleInputChange}
+                value={editMode ? newPhoneNumber : contactInfo.phoneNumber}
+                onChange={handlePhoneNumberChange}
                 disabled={!editMode}
-                className={`mt-2 w-full p-3 border rounded-lg ${
-                  editMode ? 'bg-white border-gray-300' : 'bg-gray-100 border-gray-200'
-                }`}
+                className={`mt-2 w-full p-3 border rounded-lg ${editMode ? 'bg-white border-gray-300' : 'bg-gray-100 border-gray-200'}`}
               />
             </div>
           </div>
 
           <div className="mt-4 flex justify-end space-x-2">
             {editMode ? (
-              <>
-                <button
-                  onClick={handleSaveChanges}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Save Changes
-                </button>
-                <button
-                  onClick={handleEditToggle}
-                  className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
-                >
-                  Cancel
-                </button>
-              </>
+              isOtpSent ? (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="mt-2 w-full p-3 border rounded-lg"
+                  />
+                  <button
+                    onClick={handleVerifyOtp}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Verify OTP
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSendOtp}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Send OTP
+                  </button>
+                  <button
+                    onClick={handleEditToggle}
+                    className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )
             ) : (
               <button
                 onClick={handleEditToggle}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
-                Edit Contact Information
+                Edit Phone Number
               </button>
             )}
           </div>
