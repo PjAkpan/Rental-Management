@@ -25,18 +25,6 @@ app.use("*", forbiddenPaths);
 
 app.use(requestHeaderInspection);
 
-// routeLoader("src/routers", app, {
-//   servicePrefix: "/api",
-// }).then(async () => {
-//   // await mongooseLoader();
-//   await postgresLoader();
-
-//   app.listen(port, () => {
-//     logger(`${getters.geti18ns().LOGS.RUNNING_APP} ${port}`);
-//     logger(`Running on - ${getters.getNodeEnv()}`);
-//   });
-// });
-
 const routeFolder = path.resolve(__dirname, "./routers");
 const port = getters.getAppPort();
 
