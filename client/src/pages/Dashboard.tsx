@@ -1,24 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiLogOut } from 'react-icons/fi';
+import SkeletonLoader from "../SkeletonLoader";
 
-const Dashboard = () => {
+interface PaymentData {
+  lastPayment: string;
+  amountPaid: number;
+}
+
+const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [paymentReceipt, setPaymentReceipt] = useState(null);
-  const [tenancyReceipt, setTenancyReceipt] = useState(null);
+  const [paymentReceipt, setPaymentReceipt] = useState<File | null>(null);
+  const [tenancyReceipt, setTenancyReceipt] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [showAccountDetails, setShowAccountDetails] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
+  const [roomData, setRoomData] = useState<{ roomNumber: string; dueDate: string } | null>(null);
 
 
-  // Handle payment receipt file selection
-  const handlePaymentReceiptChange = (e) => {
-    setPaymentReceipt(e.target.files[0]);
+
+  const handlePaymentReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPaymentReceipt(e.target.files[0]);
+    }
   };
 
-  // Handle tenancy receipt file selection
-  const handleTenancyReceiptChange = (e) => {
-    setTenancyReceipt(e.target.files[0]);
+  const handleTenancyReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setTenancyReceipt(e.target.files[0]);
+    }
   };
 
   // Function to upload payment receipt
@@ -56,6 +68,38 @@ const Dashboard = () => {
       setMessage("Failed to upload tenancy receipt.");
     }
   };
+
+  useEffect(() => {
+    const fetchRoomData = async () => {
+      setIsLoading(true);
+      setTimeout(() => {
+        setRoomData({
+          roomNumber: "12",
+          dueDate: "5th of every month",
+        });
+        setIsLoading(false);
+      }, 2000);
+    };
+
+    fetchRoomData();
+  }, []);
+
+   
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get<PaymentData>("/api/payment-data");
+        setPaymentData(response.data);
+      } catch (error) {
+        console.error("Error fetching payment data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -95,31 +139,48 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Room Details */}
           <div className="bg-blue-50 p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-bold text-blue-600 mb-4">Room Details</h3>
-            <p className="text-gray-600">Room Number: 12</p>
-            <p className="text-gray-600">Rent Due Date: 5th of every month</p>
-          </div>
+      <h3 className="text-lg font-bold text-blue-600 mb-4">Room Details</h3>
+      {isLoading ? (
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-300 rounded w-1/2 mb-2"></div>
+          <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+        </div>
+      ) : (
+        <>
+          <p className="text-gray-600">Room Number: {roomData?.roomNumber}</p>
+          <p className="text-gray-600">Rent Due Date: {roomData?.dueDate}</p>
+        </>
+      )}
+    </div>
 
           {/* Payment Status and Receipt Upload */}
           <div className="bg-green-50 p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-bold text-green-600 mb-4">Payment Status</h3>
-            <p className="text-gray-600">Last Payment: 2nd October 2023</p>
-            <p className="text-gray-600">Amount Paid: ₦25,000</p>
-            
-            {/* Upload Payment Receipt */}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePaymentReceiptChange}
-              className="mt-4"
-            />
-         <button
-                onClick={uploadReceipt}
-                className="mt-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-              >
-                Upload Receipt
-              </button>
-          </div>
+      <h3 className="text-lg font-bold text-green-600 mb-4">Payment Status</h3>
+      {isLoading ? (
+        <SkeletonLoader />
+      ) : paymentData ? (
+        <>
+          <p className="text-gray-600">Last Payment: {paymentData.lastPayment}</p>
+          <p className="text-gray-600">Amount Paid: ₦{paymentData.amountPaid.toLocaleString()}</p>
+        </>
+      ) : (
+        <p className="text-red-600">Error loading payment data</p>
+      )}
+
+      {/* Upload Payment Receipt */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handlePaymentReceiptChange}
+        className="mt-4"
+      />
+      <button
+        onClick={uploadReceipt}
+        className="mt-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+      >
+        Upload Receipt
+      </button>
+    </div>
 
           {/* Upload Tenancy Receipt */}
           <div className="bg-yellow-50 p-6 rounded-lg shadow-md">
@@ -229,3 +290,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

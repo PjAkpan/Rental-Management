@@ -15,6 +15,8 @@ const RequestStatus = () => {
   const [typedMessage, setTypedMessage] = useState("");
   const [attachedFile, setAttachedFile] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [page, setPage] = useState(0);
   const navigate = useNavigate();
 
   const avatarImages = {
@@ -34,6 +36,33 @@ const RequestStatus = () => {
     navigate("/maintenance");
   };
 
+  const handleTyping = () => {
+    setIsTyping(true);
+  };
+
+  const handleStopTyping = () => {
+    setIsTyping(false);
+  };
+
+    // Function to load more messages
+    const loadMoreMessages = async () => {
+      console.log('Loading more messages...');
+      
+      try {
+        const newMessages = await fetch(`https://api.example.com/messages?page=${page}`)
+          .then((response) => response.json())
+          .then((data) => data.messages);
+    
+        setChatData((prevChatData) => [...newMessages, ...prevChatData]);
+    
+        // Update page for the next fetch
+        setPage((prevPage) => prevPage + 1);
+    
+        console.log('Messages loaded successfully:', newMessages.length);
+      } catch (error) {
+        console.error('Error loading more messages:', error);
+      }
+    };
   // Handle image upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -82,11 +111,13 @@ const RequestStatus = () => {
       setMessages((prev) => [...prev, newMessage]);
     };
 
-    const ws = initializeWebSocket("ws://your-websocket-server-url", onNewMessage);
+    const ws = initializeWebSocket(
+      "ws://your-websocket-server-url",
+      onNewMessage
+    );
 
     return () => closeWebSocket();
   }, []);
-  
 
   const handleSendMessage = () => {
     if (!typedMessage && !attachedFile) {
@@ -170,9 +201,9 @@ const RequestStatus = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-1/4 bg-white shadow-md p-4">
+      <aside className="w-full md:w-1/4 bg-white shadow-md p-4">
         <div className="text-center mb-8">
           {/* Profile Image Section */}
           <div className="relative">
@@ -225,7 +256,7 @@ const RequestStatus = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="w-3/4 p-4">
+      <div className="w-full md:w-3/4 p-4">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="text-center">
@@ -235,67 +266,66 @@ const RequestStatus = () => {
           </div>
         ) : (
           <div>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-4">
               <h1 className="text-2xl font-bold">Chats</h1>
               <button
                 onClick={handleCreateNewRequest}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg mt-2 md:mt-0"
               >
                 + Create New Request
               </button>
             </div>
 
-            <div className="flex">
+            <div className="flex flex-col md:flex-row">
               {/* Recent Chats */}
-              <div className="w-1/3 bg-white shadow-md rounded-lg p-4 overflow-auto max-h-[80vh]">
-  {/* Search Bar */}
-  <div className="flex items-center bg-gray-100 p-2 rounded-md mb-4">
-    <FiSearch className="text-gray-400" />
-    <input
-      type="text"
-      placeholder="Search"
-      className="bg-gray-100 outline-none ml-2 text-sm w-full"
-    />
-  </div>
+              <div className="w-full md:w-1/3 bg-white shadow-md rounded-lg p-4 overflow-auto max-h-[80vh]">
+                <div className="flex items-center bg-gray-100 p-2 rounded-md mb-4">
+                  <FiSearch className="text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    className="bg-gray-100 outline-none ml-2 text-sm w-full"
+                  />
+                </div>
 
-  {/* Chat List */}
-  {chatData.map((chat) => (
-    <div
-      key={chat.id}
-      onClick={() => handleChatSelection(chat.id)}
-      className={`flex items-center space-x-4 p-2 border-b border-gray-200 cursor-pointer ${
-        selectedChat && selectedChat.id === chat.id
-          ? "bg-blue-100"
-          : "hover:bg-gray-100"
-      }`}
-    >
-      {/* Profile Image */}
-      <img
-        src={chat.image}
-        alt={chat.name}
-        className="w-12 h-12 rounded-full object-cover"
-      />
+                {/* Chat List */}
+                {chatData.map((chat) => (
+                  <div
+                    key={chat.id}
+                    onClick={() => handleChatSelection(chat.id)}
+                    className={`flex items-center space-x-4 p-2 border-b border-gray-200 cursor-pointer ${
+                      selectedChat && selectedChat.id === chat.id
+                        ? "bg-blue-100"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    {/* Profile Image */}
+                    <img
+                      src={chat.image}
+                      alt={chat.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
 
-      {/* Chat Info */}
-      <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-sm truncate">{chat.name}</h3>
-        <p className="text-sm text-gray-600 truncate">
-          {formatMessage(chat.message)}
-        </p>
-      </div>
+                    {/* Chat Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-sm truncate">
+                        {chat.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 truncate">
+                        {formatMessage(chat.message)}
+                      </p>
+                    </div>
 
-      {/* Last Active */}
-      <span className="text-xs text-gray-400 whitespace-nowrap">
-        {chat.lastActive}
-      </span>
-    </div>
-  ))}
-</div>
-
-
+                    {/* Last Active */}
+                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                      {chat.lastActive}
+                    </span>
+                  </div>
+                ))}
+              </div>
               {/* Chat Window */}
               {selectedChat ? (
-                <div className="w-2/3 bg-white shadow-md rounded-lg p-4 ml-4">
+                <div className="w-full md:w-2/3 bg-white shadow-md rounded-lg p-4 mt-4 md:mt-0 md:ml-4">
                   {/* Chat Header */}
                   <div className="flex items-center mb-4">
                     <img
@@ -311,16 +341,47 @@ const RequestStatus = () => {
                     </div>
                   </div>
 
+                  <div className="chat-container">
                   {/* Chat Messages */}
-                  <div className="h-64 overflow-y-scroll p-2 border-t border-b mb-4">
-                    <div className="mb-4">
-                      <div className="flex justify-end">
-                        <div className="bg-blue-500 text-white p-2 rounded-md max-w-xs">
-                          {selectedChat.message}
-                        </div>
-                      </div>
-                    </div>
+                  <div className="messages">
+    {chatData.map((message, index) => (
+      <div key={index} className="message">
+        <div className="flex items-center space-x-2">
+          {/* Profile Image with Hover Effect */}
+          <img
+            src={message.user.image}
+            alt={message.user.name}
+            className="w-12 h-12 rounded-full object-cover transition-transform duration-200 transform hover:scale-110"
+          />
+          <div className="message-content">
+            <p>{message.text}</p>
+            {/* Sent Status */}
+            {message.sent ? (
+              <span className="text-xs text-gray-500">Delivered</span>
+            ) : (
+              <span className="text-xs text-gray-500">Sending...</span>
+            )}
+          </div>
+        </div>
+      </div>
+    ))}
+      </div>
                   </div>
+
+                    {/* Typing Indicator */}
+  {isTyping && (
+    <div className="text-sm text-gray-400 italic">User is typing...</div>
+  )}
+
+  {/* Load More Button */}
+  {chatData.length > 10 && (
+    <button
+      onClick={() => loadMoreMessages()}
+      className="text-blue-500 mt-4"
+    >
+      Load More Messages
+    </button>
+  )}
 
                   {/* Chat Input */}
                   <div className="flex items-center mt-4">
@@ -353,7 +414,6 @@ const RequestStatus = () => {
                       <FiSend className="text-lg" />
                     </button>
                   </div>
-
                 </div>
               ) : null}
               {showModal && (

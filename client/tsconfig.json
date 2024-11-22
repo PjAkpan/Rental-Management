@@ -21,6 +21,11 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
-, "postcss.config.js"  ]
+    "src/**/*",
+    "postcss.config.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
