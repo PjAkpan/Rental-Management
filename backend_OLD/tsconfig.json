@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "target": "ES6",
+      "module": "commonjs",
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "strict": true,
+      "moduleResolution": "Node",
+      "forceConsistentCasingInFileNames": true,
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true
+    },
+    "include": ["src/**/*", "src/src2/services", "src/src2/utilis", "src/src2/routes", "src/src2/middleware", "src/src2/models", "src/src2/controllers", "src/src2/config", "src/src2/index.ts"],
+    "exclude": ["node_modules"]
+  }
+  
